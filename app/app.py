@@ -2,8 +2,8 @@
 import gradio as gr
 
 from app.core.models import GcodeSettings
-from app.generator import ASTM638TestSampleGCodeGenerator
-from app.renderer import render_config_field
+from app.generate_code import ASTM638TestSampleGCodeGenerator
+from app.render import render_config_field
 
 settings = GcodeSettings.from_json_file("./config.json")
 print(settings.model_dump_json())
@@ -17,7 +17,7 @@ def generate_gcode(state, download_button):
     return generated_code
 
 
-with gr.Blocks() as demo:
+with gr.Blocks() as main_app:
     gr.Markdown("Test app")
     settings_fields = []
     state = gr.BrowserState(settings.default_values())
@@ -36,4 +36,3 @@ with gr.Blocks() as demo:
 #  TODO Do loading settings from browser memory.
 #  TODO Fix issue with refreshing settings on browser
 
-demo.launch()

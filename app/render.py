@@ -28,18 +28,3 @@ def render_config_field(config_field: BaseConfigValue, state):
         return state_obj
     rendered_field.change(fn=update_state, inputs=[rendered_field, state], outputs=state)
     return config_field, rendered_field
-
-#
-#
-# class PlotRenderer(ResultRenderer):
-#     default_text = "plot shown here.."
-#
-#     def render(self, generator: CoordinateGenerator):
-#         self.container.plotly_chart(generator.get_plot_figure(), True)
-#
-#
-# class GCODETextRenderer(ResultRenderer):
-#     default_text = "GCODE text shown here.."
-#
-#     def render(self, generator: CoordinateGenerator):
-#         self.container.download_button("Download GCODE", generator.gcode(as_bytes=True), file_name=".gcode")
