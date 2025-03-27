@@ -1,2 +1,5 @@
 .idea
 *.xml
+venv
+*.pyc
+*.pyo

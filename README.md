@@ -25,10 +25,16 @@ The following parameters can be customized for the sample:
 - [x] sample height
 
 Before running, make sure you install the required libraries
-```
+```bash
 python -m pip install -r requirements.txt
 ```
-To start, run the command below
+
+To start, run either command below in your terminal
+
+```bash
+gradio start_app.py 
 ```
-streamlit run main.py
+
+```bash
+python start_app.py 
 ```
