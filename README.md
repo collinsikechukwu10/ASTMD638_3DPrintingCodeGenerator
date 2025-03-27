@@ -1,4 +1,4 @@
-## GCode generator for ASTM D638 Tensile Testing samples.
+# GCode generator for ASTM D638 Tensile Testing samples.
 
 This generates the gcode of an ASTM D638 sample to be used for tensile testing.
 The printed samples are tested to determine examine how microstructure parameters affect the strength of 3d printed builds.
@@ -24,17 +24,22 @@ The following parameters can be customized for the sample:
 - [x] start point (y)
 - [x] sample height
 
-Before running, make sure you install the required libraries
+
+### Running application locally
+
+Before running, make sure you have a python environment.
+
+- install the required libraries
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-To start, run either command below in your terminal
-
-```bash
-gradio start_app.py 
-```
-
+- Run the command below to start the application
 ```bash
 python start_app.py 
 ```
+
+### TODOS
+- [x] Implement loading settings from browser memory and refreshing settings on browser
+- [x] Implement downloading GCODE data as a file.
+

@@ -1,5 +1,9 @@
+from app.core.constants import PLOT_TITLE
+from app.core.models import GCode
 from app.core.models.config import *
 import gradio as gr
+import pandas as pd
+import plotly.graph_objects as go
 
 
 def render_config_field(config_field: BaseConfigValue, state):
@@ -26,5 +30,26 @@ def render_config_field(config_field: BaseConfigValue, state):
     def update_state(value, state_obj):
         state_obj[config_field.name] = value
         return state_obj
+
     rendered_field.change(fn=update_state, inputs=[rendered_field, state], outputs=state)
     return config_field, rendered_field
+
+
+def get_plot_object_from_gcode(gcode_path: List[GCode]):
+    df = pd.DataFrame([i.coordinate() for i in gcode_path], columns=["X", "Y", "Z"])
+    fig = go.Figure(data=[go.Scatter3d(
+        z=df["Z"],
+        x=df["X"],
+        y=df["Y"],
+        marker=dict(
+            size=1,
+            color="black",
+            colorscale='Viridis',
+        ),
+        line=dict(
+            color='green',
+            width=2
+        )
+    )])
+    fig.update_layout(title=PLOT_TITLE, autosize=True, margin=dict(l=65, r=50, b=65, t=90))
+    return fig

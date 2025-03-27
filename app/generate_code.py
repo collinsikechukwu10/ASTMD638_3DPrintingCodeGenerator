@@ -42,16 +42,19 @@ class ASTM638TestSampleGCodeGenerator:
         self._adhesion_thickness = kwargs["adhesion_layer_thickness"]
         self._num_layers = int((self._currentZ + self._sample_height) / self._layer_height)
 
+        # Generate code
+        self._build()
+
     def _build(self):
         current_z = self._currentZ
         if self._add_adhesion:
             self._build_adhesion_layer(self._startX, self._startY, current_z, self._adhesion_width)
 
         for layer in range(1, self._num_layers + 1):
-            self.build_layer(self._startX, self._startX + self._layer_length, self._startY,
-                             current_z + (layer * self._layer_height))
+            self._build_layer(self._startX, self._startX + self._layer_length, self._startY,
+                              current_z + (layer * self._layer_height))
 
-    def build_layer(self, start_x, end_x, start_y, layer_z):
+    def _build_layer(self, start_x, end_x, start_y, layer_z):
         # this function shoudl control which part is being created, whether the dogbone or fillet end
         cx = start_x
         end_y = start_y + self._layer_width
@@ -89,8 +92,10 @@ class ASTM638TestSampleGCodeGenerator:
             adhes_end_x -= (2 * 0.4765 / 3)
             adhes_end_x -= (2 * self._layer_raster_spacing / 3)
 
-    def generate_code(self, as_bytes: bool = False):
-        self._build()
+    def path(self):
+        return self._coords
+
+    def gcode_file(self, as_bytes: bool = False):
         gcode = f";Generated on {dt.datetime.now()};\n"
         gcode += self._prepare_initialization_code()
         gcode += "".join([
@@ -141,26 +146,3 @@ class ASTM638TestSampleGCodeGenerator:
     def _prepare_close_code(self):
         return "G10;\nM107;\n" if self._printer_type == PrinterType.ULTIMAKER else \
             "M104 S0;\nM140 S0;\nG91;\nG1 E-2 F300;\nG28 X0 Y0;\nM84;\nG90;\nM107;\n"
-
-# def df(self):
-#     return pd.DataFrame(map(lambda i: i.tuple(), self._coords), columns=["X", "Y", "Z", "E"])
-
-# def get_plot_figure(self):
-#     df = self.df()
-#     fig = go.Figure(data=[go.Scatter3d(
-#         z=df["Z"],
-#         x=df["X"],
-#         y=df["Y"],
-#         marker=dict(
-#             size=1,
-#             color="black",
-#             colorscale='Viridis',
-#         ),
-#         line=dict(
-#             color='green',
-#             width=2
-#         )
-#     )])
-#     fig.update_layout(title='3D Astm D638 Plot', autosize=True, margin=dict(l=65, r=50, b=65, t=90))
-#     print(df.head())
-#     return fig
