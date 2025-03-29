@@ -45,3 +45,6 @@ python start_app.py
 ```
 - The application runs on port `7680` by default. Open your browser and navigate to `http://localhost:7680` to access the application.
 
+### Screenshot
+
+![demo screenshot](./imgs/demoScreenshot.png)
