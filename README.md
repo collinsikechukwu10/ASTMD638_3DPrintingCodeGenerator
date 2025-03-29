@@ -1,5 +1,10 @@
 # GCode generator for ASTM D638 Tensile Testing samples.
 
+![Static Badge](https://img.shields.io/badge/gradio-yellow)
+![Static Badge](https://img.shields.io/badge/3D_printing-red)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/collinsikechukwu10/ASTMD638_3DPrintingCodeGenerator)
+
+
 This generates the gcode of an ASTM D638 sample to be used for tensile testing.
 The printed samples are tested to determine examine how microstructure parameters affect the strength of 3d printed builds.
 
