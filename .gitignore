@@ -1,2 +1,7 @@
 .idea
 *.xml
+venv
+*.pyc
+*.pyo
+gcode_cache
+.gradio
