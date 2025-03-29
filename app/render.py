@@ -2,10 +2,9 @@ from app.core.constants import PLOT_TITLE
 from app.core.models import GCode
 from app.core.models.config import *
 import gradio as gr
-import pandas as pd
 import plotly.graph_objects as go
 
-from app.sessionStore import UserGCodeSettingsSession
+from app.core.state import UserGCodeSettingsSession
 
 
 def render_config_field(config_field: BaseConfigValue, state):
@@ -38,20 +37,14 @@ def render_config_field(config_field: BaseConfigValue, state):
 
 
 def get_plot_object_from_gcode(gcode_path: List[GCode]):
-    df = pd.DataFrame([i.coordinate() for i in gcode_path], columns=["X", "Y", "Z"])
+    x, y, z = [], [], []
+    for i in gcode_path:
+        (x_i, y_i, z_i) = i.coordinate()
+        x.append(x_i)
+        y.append(y_i)
+        z.append(z_i)
     fig = go.Figure(data=[go.Scatter3d(
-        z=df["Z"],
-        x=df["X"],
-        y=df["Y"],
-        marker=dict(
-            size=1,
-            color="black",
-            colorscale='Viridis',
-        ),
-        line=dict(
-            color='green',
-            width=2
-        )
+        x=x, y=y, z=z, marker=dict(size=1, color="black", colorscale='Viridis', ), line=dict(color='green', width=3)
     )])
-    fig.update_layout(title=PLOT_TITLE, autosize=True, margin=dict(l=65, r=50, b=65, t=90))
+    fig.update_layout(title=PLOT_TITLE, autosize=True, margin=dict(l=65, r=50, b=20, t=20))
     return fig

@@ -12,7 +12,7 @@ from app.core.exceptions import NegativeValueException
 class ASTM638TestSampleGCodeGenerator:
     def __init__(self, settings: Dict[str, Union[int, float, bool, str]]):
         kwargs = settings
-        self._coords: List[GCode] = []
+        self._coords: List[GCode] = list()
 
         self._counter_idx = 0
         self._init_speed = kwargs["initialization_speed"]
@@ -55,7 +55,6 @@ class ASTM638TestSampleGCodeGenerator:
                               current_z + (layer * self._layer_height))
 
     def _build_layer(self, start_x, end_x, start_y, layer_z):
-        # this function shoudl control which part is being created, whether the dogbone or fillet end
         cx = start_x
         end_y = start_y + self._layer_width
         while cx <= end_x:

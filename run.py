@@ -1,10 +1,9 @@
 import gradio as gr
-import tempfile
 
 from app.core.models import GcodeSettings
 from app.generate_code import ASTM638TestSampleGCodeGenerator
 from app.render import render_config_field, get_plot_object_from_gcode
-from app.sessionStore import UserGCodeSettingsSession
+from app.core.state import UserGCodeSettingsSession
 
 settings = GcodeSettings.from_json_file("./config.json")
 
@@ -19,14 +18,16 @@ def generate_gcode(state: UserGCodeSettingsSession):
     with open(gcode_save_path, 'w') as file_io:
         file_io.write(gcode_file_str)
 
-    return plot_fig, gr.DownloadButton(value=gcode_save_path, label="Download GCODE File", visible=True, interactive=True)
+    return plot_fig, gr.DownloadButton(value=gcode_save_path, label="Download GCODE File", visible=True,
+                                       interactive=True)
 
 
-with gr.Blocks() as demo:
+with gr.Blocks(delete_cache=(86400, 86400)) as demo:
     gr.HTML("""<h1 style="text-align: center;">ASTM D638 Test Sample GCode Generator</h1>""")
     settings_fields = []
     session_store = gr.State(
         value=UserGCodeSettingsSession(settings.default_values()),
+        time_to_live=86400,
         delete_callback=lambda state: state.close()
     )
     with gr.Row():
@@ -38,12 +39,9 @@ with gr.Blocks() as demo:
             generate_button = gr.Button("Generate GCODE")
 
         with gr.Column(scale=2):
-            plot_obj = gr.Plot(label="forecast", format="png")
+            plot_obj = gr.Plot(label="3D ASTM D638 Sample Plot", format="png")
             download_button = gr.DownloadButton(visible=False, interactive=False)
 
     generate_button.click(generate_gcode, session_store, [plot_obj, download_button])
 
-#  TODO Do loading settings from browser memory.
-#  TODO Fix issue with refreshing settings on browser
-# Implement downloading of data
 demo.launch()
