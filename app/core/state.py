@@ -1,10 +1,9 @@
 import errno
-
 import os
 import shutil
 import uuid
 
-from app.core.constants import GCODE_FILE_SAVE_NAME, BASE_DIR
+from app.core.constants import GCODE_FILE_NAME, BASE_DIR
 
 GCODE_CACHE_LOCATION = os.path.join(BASE_DIR, "gcode_cache")
 
@@ -43,7 +42,7 @@ class UserGCodeSettingsSession:
         return self._settings_store
 
     def generate_path_for_gcode_file(self):
-        return os.path.join(GCODE_CACHE_LOCATION, self.settings_session_id, GCODE_FILE_SAVE_NAME)
+        return os.path.join(GCODE_CACHE_LOCATION, self.settings_session_id, GCODE_FILE_NAME)
 
     def close(self):
         print(f"Deleting state folder for {self.settings_session_id}")

@@ -1,4 +1,3 @@
-import json
 from typing import Union, List, Any
 
 from pydantic import BaseModel
@@ -19,34 +18,33 @@ class BaseConfigValue(BaseModel):
         return label_formatter(self.name)
 
 
-class BooleanConfig(BaseConfigValue):
+class BooleanConfigValue(BaseConfigValue):
     initial_value: bool
 
 
-class NumericConfig(BaseConfigValue):
+class NumericConfigValue(BaseConfigValue):
     initial_value: Union[int, float]
     min_value: Union[int, float] = None
     max_value: Union[int, float] = None
     step: Union[int, float] = None
 
 
-class CategoricalConfig(BaseConfigValue):
+class CategoricalConfigValue(BaseConfigValue):
     choices: List[Union[int, float, str]]
 
     def model_post_init(self, __context: Any) -> None:
         if self.initial_value not in self.choices:
             raise ValueError(
-                f"Initial value `{self.initial_value}` not included in the choices provided: {','.join(self.choices)} for field {self.name}")
+                f"Initial value `{self.initial_value}` is not included in the choices provided: {','.join(self.choices)} for field {self.name}")
 
 
-class GCodeSettingSection(BaseModel):
+class ConfigValuesGroup(BaseModel):
     section_name: str
     fields: List[BaseConfigValue] = list()
 
 
 class GcodeSettings(BaseModel):
-    sections: List[GCodeSettingSection]
-    _session = None
+    sections: List[ConfigValuesGroup]
 
     def default_values(self):
         return {field.name: field.initial_value for section in self.sections for field in section.fields}
@@ -55,11 +53,11 @@ class GcodeSettings(BaseModel):
     def get_config_value_from_dict(config_object: dict):
         type_ = ConfigType.get_config_type(config_object.get("type", None))
         if type_ is ConfigType.NUMERIC:
-            return NumericConfig(**config_object)
+            return NumericConfigValue(**config_object)
         elif type_ is ConfigType.BOOLEAN:
-            return BooleanConfig(**config_object)
+            return BooleanConfigValue(**config_object)
         elif type_ is ConfigType.CATEGORICAL:
-            return CategoricalConfig(**config_object)
+            return CategoricalConfigValue(**config_object)
         else:
             raise ConfigTypeNotFoundError(f"{type_} type is not configured in the application")
 
@@ -69,12 +67,5 @@ class GcodeSettings(BaseModel):
         sections = []
         for section in list_of_config_sections_obj:
             fields = [GcodeSettings.get_config_value_from_dict(config) for config in section["fields"]]
-            sections.append(GCodeSettingSection(section_name=section["section_name"], fields=fields))
-
+            sections.append(ConfigValuesGroup(section_name=section["section_name"], fields=fields))
         return GcodeSettings(sections=sections)
-
-    def save_to_json_file(self, file_path: str):
-        with open(file_path, "w") as f:
-            json.dump([section.dict() for section in self.sections], f)
-
-

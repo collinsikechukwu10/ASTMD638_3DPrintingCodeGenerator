@@ -1,12 +1,11 @@
+import datetime as dt
 import math
 from typing import List, Dict, Union
-import datetime as dt
 
 from app.core.constants import get_cross_section_factor_adjustment
 from app.core.enums import PrinterType
-
-from app.core.models import GCode
 from app.core.exceptions import NegativeValueException
+from app.core.models import GCode
 
 
 class ASTM638TestSampleGCodeGenerator:
@@ -91,7 +90,7 @@ class ASTM638TestSampleGCodeGenerator:
             adhes_end_x -= (2 * 0.4765 / 3)
             adhes_end_x -= (2 * self._layer_raster_spacing / 3)
 
-    def path(self):
+    def gcode_traversal(self):
         return self._coords
 
     def gcode_file(self, as_bytes: bool = False):
