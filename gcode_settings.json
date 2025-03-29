@@ -5,15 +5,15 @@
       {
         "type": "number",
         "name": "layer_thickness",
-        "initial_value": 2,
+        "initial_value": 0.1,
         "min_value": 0,
-        "max_value": 120,
-        "step": 1
+        "max_value": 10,
+        "step": 0.1
       },
       {
         "type": "number",
         "name": "layer_width",
-        "initial_value": 10,
+        "initial_value": 4,
         "min_value": 0,
         "max_value": 120,
         "step": 1
@@ -21,10 +21,10 @@
       {
         "type": "number",
         "name": "layer_length",
-        "initial_value": 20,
+        "initial_value": 9.53,
         "min_value": 0,
-        "max_value": 120,
-        "step": 1
+        "max_value": 100,
+        "step": 0.01
       },
       {
         "type": "number",
@@ -40,14 +40,6 @@
     "section_name": "3D Printer Settings",
     "fields": [
       {
-        "type": "number",
-        "name": "filament_size",
-        "initial_value": 0.4,
-        "min_value": 0,
-        "max_value": 120,
-        "step": 1
-      },
-      {
         "type": "categorical",
         "name": "printer_type",
         "initial_value": "ULTIMAKER",
@@ -59,17 +51,17 @@
       {
         "type": "number",
         "name": "nozzle_temperature",
-        "initial_value": 200,
+        "initial_value": 210,
         "min_value": 0,
-        "max_value": 400,
+        "max_value": 300,
         "step": 1
       },
       {
         "type": "number",
         "name": "bed_temperature",
-        "initial_value": 60,
+        "initial_value": 45,
         "min_value": 0,
-        "max_value": 120,
+        "max_value": 100,
         "step": 1
       },
       {
@@ -80,6 +72,44 @@
         "max_value": 120,
         "step": 1
       },
+      {
+        "type": "number",
+        "name": "filament_size",
+        "initial_value": 0.4,
+        "min_value": 0,
+        "max_value": 120,
+        "step": 1
+      },
+      {
+        "type": "categorical",
+        "name": "microstructure_type",
+        "initial_value": "straight",
+        "choices": [
+          "shifted",
+          "straight"
+        ]
+      },
+      {
+        "type": "number",
+        "name": "initialization_speed",
+        "initial_value": 1000,
+        "min_value": 0,
+        "max_value": 8000,
+        "step": 1
+      },
+      {
+        "type": "number",
+        "name": "print_speed",
+        "initial_value": 500,
+        "min_value": 0,
+        "max_value": 8000,
+        "step": 1
+      }
+    ]
+  },
+  {
+    "section_name": "Test Sample Settings",
+    "fields": [
       {
         "type": "boolean",
         "name": "add_adhesion",
@@ -103,40 +133,43 @@
       },
       {
         "type": "number",
-        "name": "initialization_speed",
-        "initial_value": 4000,
+        "name": "midsection_length",
+        "initial_value": 3.18,
         "min_value": 0,
-        "max_value": 8000,
-        "step": 1
+        "max_value": 50,
+        "step": 0.01
       },
       {
         "type": "number",
-        "name": "print_speed",
-        "initial_value": 2850,
+        "name": "midsection_height",
+        "initial_value": 9.53,
         "min_value": 0,
-        "max_value": 8000,
-        "step": 1
-      }
-    ]
-  },
-  {
-    "section_name": "Test Sample Settings",
-    "fields": [
-      {
-        "type": "number",
-        "name": "sample_midsection_width",
-        "initial_value": 1,
-        "min_value": 0,
-        "max_value": 120,
-        "step": 1
+        "max_value": 50,
+        "step": 0.01
       },
       {
         "type": "number",
-        "name": "sample_midsection_height",
-        "initial_value": 1,
+        "name": "fillet_radius",
+        "initial_value": 12.7,
         "min_value": 0,
-        "max_value": 120,
-        "step": 1
+        "max_value": 180,
+        "step": 0.1
+      },
+      {
+        "type": "number",
+        "name": "grip_distance",
+        "initial_value": 25.4,
+        "min_value": 0,
+        "max_value": 100,
+        "step": 0.1
+      },
+      {
+        "type": "number",
+        "name": "theta",
+        "initial_value": 48.59,
+        "min_value": 0,
+        "max_value": 180,
+        "step": 0.01
       },
       {
         "type": "number",
@@ -157,7 +190,7 @@
       {
         "type": "number",
         "name": "sample_height",
-        "initial_value": 100,
+        "initial_value": 63.5,
         "min_value": 0,
         "max_value": 120,
         "step": 1

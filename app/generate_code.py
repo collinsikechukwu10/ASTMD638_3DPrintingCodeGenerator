@@ -25,11 +25,17 @@ class ASTM638TestSampleGCodeGenerator:
         self._layer_length = kwargs["layer_length"]
         self._layer_raster_spacing = kwargs["layer_raster_spacing"]
         self._filament_size = kwargs["filament_size"]
+
+        # Make sure that this is the actual start of the build,
+        # and aalso checvk that this is not represented in the config already
         self._currentZ = 0
 
         # FILLET SECTION
-        self._sample_midsection_width = kwargs["sample_midsection_width"]
-        self._sample_midsection_height = kwargs["sample_midsection_height"]
+        self._midsection_length = kwargs["midsection_length"]
+        self._midsection_height = kwargs["midsection_height"]
+        self._fillet_radius = kwargs["fillet_radius"]
+        self._grip_distance = kwargs["grip_distance"]
+        self._theta = kwargs["theta"]
 
         # PRINTER SETTINGS
         self._printer_type = kwargs["printer_type"]
@@ -39,19 +45,55 @@ class ASTM638TestSampleGCodeGenerator:
         self._add_adhesion = kwargs["add_adhesion"]
         self._adhesion_width = kwargs["adhesion_layer_width"]
         self._adhesion_thickness = kwargs["adhesion_layer_thickness"]
+
+        # should maybe include the adhesion layer as well
         self._num_layers = int((self._currentZ + self._sample_height) / self._layer_height)
 
         # Generate code
-        self._build()
+        self._curve_height = (self._grip_distance - self._midsection_height) / 2
 
-    def _build(self):
-        current_z = self._currentZ
+        # midsection layer z variables.
+        self._bottom_grip_start = self._currentZ + (self._sample_height - self._grip_distance) / 2
+        self._bottom_grip_end = self._bottom_grip_start + self._curve_height
+        self._top_grip_start = self._bottom_grip_end + self._midsection_height
+        self._top_grip_end = self._top_grip_start + self._curve_height
+
+        # midesction x variables
+        self._midsection_start_x = self._startX + (self._layer_length - self._midsection_length) / 2
+        self._midesction_end_x = self._midsection_start_x + self._midsection_length
+        self.build()
+
+    def build(self):
+
         if self._add_adhesion:
-            self._build_adhesion_layer(self._startX, self._startY, current_z, self._adhesion_width)
+            self._build_adhesion_layer(self._startX, self._startY, self._currentZ, self._adhesion_width)
 
         for layer in range(1, self._num_layers + 1):
-            self._build_layer(self._startX, self._startX + self._layer_length, self._startY,
-                              current_z + (layer * self._layer_height))
+            current_z_layer = self._currentZ + (layer * self._layer_height)
+            (start_x, end_x) = self._get_startx_endx(current_z_layer)
+            self._build_layer(start_x, end_x, self._startY, current_z_layer)
+
+    def _get_startx_endx(self, layer_z):
+        d0 = self._fillet_radius * math.sin(self._theta * (math.pi / 180))
+        if self._bottom_grip_start <= layer_z < self._bottom_grip_end:
+            # lower half
+            h2 = self._bottom_grip_end - layer_z
+            d2 = math.sqrt(math.pow(self._fillet_radius, 2) - math.pow(h2, 2)) - d0
+            x0 = self._startX + d2
+            x1 = x0 + self._layer_length - (2 * d2)
+            return x0, x1
+        elif self._top_grip_start <= layer_z < self._top_grip_end:
+            # upper half
+            h2 = layer_z - self._top_grip_start
+            d2 = math.sqrt(math.pow(self._fillet_radius, 2) - math.pow(h2, 2)) - d0
+            x0 = self._startX + d2
+            x1 = x0 + self._layer_length - (2 * d2)
+            return x0, x1
+        elif self._bottom_grip_end <= layer_z < self._top_grip_start:
+            x0, x1 = self._midsection_start_x, self._midesction_end_x
+        else:
+            x0, x1 = self._startX, self._startX + self._layer_length
+        return x0, x1
 
     def _build_layer(self, start_x, end_x, start_y, layer_z):
         cx = start_x
@@ -63,11 +105,6 @@ class ASTM638TestSampleGCodeGenerator:
             cx += self._layer_raster_spacing
             self._add_path(cx, end_y, layer_z)
             self._add_path(cx, start_y, layer_z)
-
-    def _get_start_and_end_points(self, layer_z):
-        # use this to controll which section it is
-
-        pass
 
     def _build_adhesion_layer(self, start_x, start_y, z_layer, adhesion_width):
         adhes_end_x = adhes_end_y = adhesion_width
@@ -90,19 +127,6 @@ class ASTM638TestSampleGCodeGenerator:
             adhes_end_x -= (2 * 0.4765 / 3)
             adhes_end_x -= (2 * self._layer_raster_spacing / 3)
 
-    def gcode_traversal(self):
-        return self._coords
-
-    def gcode_file(self, as_bytes: bool = False):
-        gcode = f";Generated on {dt.datetime.now()};\n"
-        gcode += self._prepare_initialization_code()
-        gcode += "".join([
-            f"G{(idx == 0) * 0 + (idx != 0) * 1} F{(idx == 0) * self._init_speed + (idx != 0) * self._print_speed} " +
-            f"X{coord.x:.4f} Y{coord.y:.4f} Z{coord.z:.4f} E{coord.e:.4f};\n" for idx, coord in
-            enumerate(self._coords)])
-        gcode += self._prepare_close_code()
-        return bytes(gcode.encode("utf8")) if as_bytes else gcode
-
     def _add_path(self, x, y, z, is_adhesion_layer=False):
         self._coords.append(GCode(x=x, y=y, z=z, e=self._calculate_extrusion_amount(x, y, z, is_adhesion_layer)))
 
@@ -113,6 +137,9 @@ class ASTM638TestSampleGCodeGenerator:
         csa = self._adhesion_thickness * 0.4 / csa if is_adhesion_layer else self._layer_height * 0.4 / csa
         px, py, pz, pe = self._coords[self._counter_idx - 1].tuple()
         return pe + csa * math.sqrt(math.pow(x - px, 2) + math.pow(y - py, 2) + math.pow(z - pz, 2))
+
+    def gcode_traversal(self):
+        return self._coords
 
     def _prepare_initialization_code(self):
         if self._printer_type == PrinterType.ULTIMAKER:
@@ -139,8 +166,19 @@ class ASTM638TestSampleGCodeGenerator:
                           f"G1 F{self._print_speed} X{self._startX} Y{self._startY} Z0.05\n" + \
                           "G92 X0 Y0 Z0\n" + \
                           "M106 S190\n"
-        return opening_str
+        return f";Generated on {dt.datetime.now()};\n" + opening_str
 
     def _prepare_close_code(self):
         return "G10;\nM107;\n" if self._printer_type == PrinterType.ULTIMAKER else \
             "M104 S0;\nM140 S0;\nG91;\nG1 E-2 F300;\nG28 X0 Y0;\nM84;\nG90;\nM107;\n"
+
+    def _prepare_traversals(self):
+        return "".join([
+            f"G{(idx == 0) * 0 + (idx != 0) * 1} F{(idx == 0) * self._init_speed + (idx != 0) * self._print_speed} " +
+            f"X{coord.x:.4f} Y{coord.y:.4f} Z{coord.z:.4f} E{coord.e:.4f};\n" for idx, coord in
+            enumerate(self._coords)]
+        )
+
+    def gcode_file(self, as_bytes: bool = False):
+        code = self._prepare_initialization_code() + self._prepare_traversals() + self._prepare_close_code()
+        return bytes(code.encode("utf8")) if as_bytes else code
