@@ -9,7 +9,7 @@ settings = GcodeSettings.from_json_file("./config.json")
 
 def generate_gcode(state):
     print(state)
-    gcode_generator = ASTM638TestSampleGCodeGenerator(app_config=state)
+    gcode_generator = ASTM638TestSampleGCodeGenerator(settings=state)
     plot_fig = get_plot_object_from_gcode(gcode_generator.path())
     gcode_file_bytes = gcode_generator.gcode_file(as_bytes=True)
     return plot_fig #, gcode_file_bytes

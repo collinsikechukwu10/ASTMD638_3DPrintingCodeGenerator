@@ -10,8 +10,8 @@ from app.core.exceptions import NegativeValueException
 
 
 class ASTM638TestSampleGCodeGenerator:
-    def __init__(self, app_config: Dict[str, Union[int, float, bool, str]]):
-        kwargs = app_config
+    def __init__(self, settings: Dict[str, Union[int, float, bool, str]]):
+        kwargs = settings
         self._coords: List[GCode] = []
 
         self._counter_idx = 0

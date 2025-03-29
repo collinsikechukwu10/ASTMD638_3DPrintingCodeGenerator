@@ -5,6 +5,8 @@ import gradio as gr
 import pandas as pd
 import plotly.graph_objects as go
 
+from app.sessionStore import UserGCodeSettingsSession
+
 
 def render_config_field(config_field: BaseConfigValue, state):
     rendered_field = None
@@ -27,8 +29,8 @@ def render_config_field(config_field: BaseConfigValue, state):
     else:
         raise ValueError(f"Config field type {type(config_field)} is not supported")
 
-    def update_state(value, state_obj):
-        state_obj[config_field.name] = value
+    def update_state(value, state_obj: UserGCodeSettingsSession):
+        state_obj.update_state(config_field.name, value)
         return state_obj
 
     rendered_field.change(fn=update_state, inputs=[rendered_field, state], outputs=state)
