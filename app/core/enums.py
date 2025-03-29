@@ -8,9 +8,9 @@ class PrinterType(StrEnum):
     ULTIMAKER = "ULTIMAKER"
 
 
-class MicrostructureType(IntEnum):
-    SHIFTED = 0
-    STRAIGHT = 1
+class MicrostructureType(StrEnum):
+    SHIFTED = "shifted"
+    STRAIGHT = "straight"
 
 
 class ConfigType(StrEnum):
