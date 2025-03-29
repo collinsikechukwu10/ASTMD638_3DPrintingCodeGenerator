@@ -25,7 +25,7 @@ The following parameters can be customized for the sample:
 - [x] sample height
 
 
-### Running application locally
+### Running the app
 
 Before running, make sure you have a python environment.
 
@@ -38,8 +38,5 @@ python -m pip install -r requirements.txt
 ```bash
 python start_app.py 
 ```
-
-### TODOS
-- [x] Implement loading settings from browser memory and refreshing settings on browser
-- [x] Implement downloading GCODE data as a file.
+- The application runs on port `7680` by default. Open your browser and navigate to `http://localhost:7680` to access the application.
 
